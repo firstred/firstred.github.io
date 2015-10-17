@@ -1,0 +1,12 @@
+body {
+    padding-top: 50px;
+}
+.main-content {
+    padding: 40px 15px;
+}
+.settings-correct {
+    color: #5cb85c;
+}
+.settings-wrong {
+    color: #d9534f;
+}

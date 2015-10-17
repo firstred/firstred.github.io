@@ -1,38 +1,139 @@
 <!doctype html>
 <html>
 <head lang="en">
-  <meta charset="UTF-8">
-  <title>Generate Apache config</title>
-  <link rel="stylesheet" type="text/css" href="../../bower_components/bootswatch-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="../../css/apacheconf.css">
-  <script src="../../bower_components/bootswatch-dist/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Generate Apache config</title>
+    <link rel="stylesheet" type="text/css" href="bower_components/bootswatch-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/apacheconf.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="bower_components/highlightjs/styles/darkula.css">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootswatch-dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/highlightjs/highlight.pack.min.js"></script>
+    <script src="bower_components/mustache.js/mustache.min.js"></script>
+    <script src="js/apacheconf.js"></script>
 </head>
-<body>
-<!--<nav class="navbar navbar-inverse navbar-fixed-top">-->
-  <!--<div class="container">-->
-    <!--<div class="navbar-header">-->
-      <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">-->
-        <!--<span class="sr-only">Toggle navigation</span>-->
-        <!--<span class="icon-bar"></span>-->
-        <!--<span class="icon-bar"></span>-->
-        <!--<span class="icon-bar"></span>-->
-      <!--</button>-->
-      <!--<a class="navbar-brand" href="#">Project name</a>-->
-    <!--</div>-->
-    <!--<div id="navbar" class="collapse navbar-collapse">-->
-      <!--<ul class="nav navbar-nav">-->
-        <!--<li class="active"><a href="#">Home</a></li>-->
-        <!--<li><a href="#about">About</a></li>-->
-        <!--<li><a href="#contact">Contact</a></li>-->
-      <!--</ul>-->
-    <!--</div>-->
-  <!--</div>-->
-<!--</nav>-->
-<div class="container">
-  <div class="main-content">
-    <h1>Genereer Apache-configuratie voor PrestaShop Bitnami</h1>
+<body ng-app="ApacheConfApp">
+<div class="container" ng-controller="ApacheConfCtrl">
+    <div class="main-content">
+        <h1 class="page-header"><strong>Genereer Apache-configuratie voor PrestaShop Bitnami</strong></h1>
 
-  </div>
+        <div class="col-md-12 col-lg-12">
+            <div class="col-md-6 col-lg-6">
+                <h2><strong>Uitleg</strong></h2>
+                <strong>Om gemakkelijk een configuratiebestand aan te maken voor Apache kun je deze pagina gebruiken.
+                    Vul de domeinnaam in van de hoofdwinkel (zonder <code>http://</code> of <code>https://</code>) en
+                    eventueel de submap van de winkel (<code>/submap/</code>). Het gaat bij de submap om de virtuele submap
+                    dat onderdeel is van de URL. Vul daarom bij de multistore-configuratie in de backoffice, <code>/</code>
+                    in bij de optie 'Fysieke URL' en de gekozen submap bij de optie 'Virtuele URL'.
+                    Om de configuratie simpel te houden is het SSL-domein altijd gelijk aan de normale domeinnaam.
+                </strong>
+                <strong>
+                    <br/>Klik vervolgens op 'Genereer' om de configuratie te genereren.
+                </strong>
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <form class="form-horizontal" name="settings">
+                    <fieldset>
+                        <h3><i class="fa fa-building"></i> <strong>Winkelgegevens</strong></h3>
+
+                        <div class="panel panel-primary">
+                            <div class="panel-heading"><strong>Hoofdwinkel</strong></div>
+                            <div class="panel-body">
+
+                                <div class="form-group" ng-class="{
+                    'has-error': settings.mainDomain.$error.required,
+                    'has-success': !settings.mainDomain.$error.required}">
+                                    <label for="mainDomain"
+                                           class="col-lg-2 control-label"><strong>Domeinnaam</strong></label>
+
+                                    <div class="col-lg-10">
+                                        <input ng-model="main_store.domain" type="text" name="mainDomain"
+                                               class="form-control"
+                                               id="mainDomain" placeholder="www.voorbeeld.nl" required>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-class="{
+                    'has-error': settings.mainDir.$invalid,
+                    'has-success': settings.mainDir.$valid}">
+                                    <label for="mainDir" class="col-lg-2 control-label"><strong>Submap</strong></label>
+
+                                    <div class="col-lg-10">
+                                        <input ng-model="main_store.dir" type="text" class="form-control" id="mainDir"
+                                               ng-pattern="/^\/(.*\/)*$/" name="mainDir" placeholder="/" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <h3><i class="fa fa-building-o"></i> <strong>Multistore</strong></h3>
+
+                        <div ng-repeat="(key, multistore) in multistores">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading"><strong>Extra winkel {{key + 1}}</strong></div>
+                                <div class="panel-body">
+                                    <div ng-form="multistoreForm">
+                                        <div class="form-group" ng-class="{
+                        'has-error': multistoreForm.multistoreDomain.$error.required,
+                        'has-success': !multistoreForm.multistoreDomain.$error.required}">
+                                            <label for="{{'multistore'+key+'domain'}}"
+                                                   class="col-lg-2 control-label"><strong>Domeinnaam</strong></label>
+
+                                            <div class="col-lg-10">
+                                                <input ng-model="multistore.domain" type="text" class="form-control"
+                                                       id="{{'multistore'+key+'domain'}}"
+                                                       placeholder="multi.voorbeeld.nl" name="multistoreDomain" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-class="{
+                    'has-error': multistoreForm.multistoreDir.$invalid,
+                    'has-success': multistoreForm.multistoreDir.$valid}">
+                                            <label for="{{'multistore'+key+'dir'}}"
+                                                   class="col-lg-2 control-label"><strong>Submap</strong></label>
+
+                                            <div class="col-lg-10">
+                                                <input ng-model="multistore.dir" type="text" class="form-control"
+                                                       id="{{'multistore'+key+'dir'}}"
+                                                       ng-pattern="/^\/(.*\/)*$/" placeholder="/" name="multistoreDir"
+                                                       required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" ng-click="removeStore(key)"><i
+                                            class="fa fa-trash-o"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <button type="button" class="btn btn-primary pull-right" ng-click="addStore()"><i
+                                class="fa fa-plus"></i></button>
+                    </fieldset>
+                    <h3 class="settings-correct" ng-show="settings.$valid">
+                        <i class="fa fa-check-circle"></i>
+                        <strong> De instellingen zijn ingevuld!</strong>
+                    </h3>
+
+                    <h3 class="settings-wrong" ng-show="settings.$invalid">
+                        <i class="fa fa-times-circle"></i>
+                        <strong> Niet alles is juist ingevuld! Mogelijk kloppen de instellingen niet.</strong>
+                    </h3>
+                    <button type="button" class="btn btn-primary" ng-click="generate()" ng-disabled="settings.$invalid">
+                        Genereer
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12">
+            <h1 class="page-header"><strong>Gegenereerde configuratie</strong></h1>
+
+            <div id="apacheconf">
+                <blockquote>Nog geen configuratie gegenereerd.</blockquote>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
