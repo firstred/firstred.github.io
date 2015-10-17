@@ -2,6 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Generate Apache config</title>
     <link rel="stylesheet" type="text/css" href="bower_components/bootswatch-dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/apacheconf.css">
@@ -22,16 +23,26 @@
         <div class="col-md-12 col-lg-12">
             <div class="col-md-6 col-lg-6">
                 <h2><strong>Uitleg</strong></h2>
-                <strong>Om gemakkelijk een configuratiebestand aan te maken voor Apache kun je deze pagina gebruiken.
-                    Vul de domeinnaam in van de hoofdwinkel (zonder <code>http://</code> of <code>https://</code>) en
-                    eventueel de submap van de winkel (<code>/submap/</code>). Het gaat bij de submap om de virtuele submap
-                    dat onderdeel is van de URL. Vul daarom bij de multistore-configuratie in de backoffice, <code>/</code>
-                    in bij de optie 'Fysieke URL' en de gekozen submap bij de optie 'Virtuele URL'.
-                    Om de configuratie simpel te houden is het SSL-domein altijd gelijk aan de normale domeinnaam.
-                </strong>
-                <strong>
-                    <br/>Klik vervolgens op 'Genereer' om de configuratie te genereren.
-                </strong>
+
+                <p>
+                    <strong>Om gemakkelijk een configuratiebestand aan te maken voor Apache kun je deze pagina
+                        gebruiken.
+                        Vul de domeinnaam in van de hoofdwinkel (zonder <code>http://</code> of <code>https://</code>)
+                        en
+                        eventueel de submap van de winkel (<code>/submap/</code>). Het gaat bij de submap om de virtuele
+                        submap
+                        dat onderdeel is van de URL. Vul daarom bij de multistore-configuratie in de backoffice,
+                        <code>/</code>
+                        in bij de optie 'Fysieke URL' en de gekozen submap bij de optie 'Virtuele URL'.
+                        Om de configuratie simpel te houden is het SSL-domein altijd gelijk aan de normale domeinnaam.
+                    </strong>
+                </p>
+
+                <p>
+                    <strong>
+                        Klik vervolgens op 'Genereer' om de configuratie te genereren.
+                    </strong>
+                </p>
             </div>
             <div class="col-md-6 col-lg-6">
                 <form class="form-horizontal" name="settings">
@@ -84,7 +95,8 @@
                                             <div class="col-lg-10">
                                                 <input ng-model="multistore.domain" type="text" class="form-control"
                                                        id="{{'multistore'+key+'domain'}}"
-                                                       placeholder="multi.voorbeeld.nl" name="multistoreDomain" required>
+                                                       placeholder="multi.voorbeeld.nl" name="multistoreDomain"
+                                                       required>
                                             </div>
                                         </div>
                                         <div class="form-group" ng-class="{
